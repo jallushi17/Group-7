@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie seat</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="movie-container">
+	<h1>Make a reservation</h1>
+        <label>Pick a pitch</label>
+        <select id="movie">
+            <option value="12">Football($12)</option>
+            <option value="10">Volleyball ($10)</option>
+            <option value="11">Tennis($11)</option>
+            <option value="8">Basketball ($8)</option>
+        </select>
+    </div>
+	<h1>Parking available</h1>
+    <ul class="showcase">
+        <li>
+            <div class="seat"></div>
+            <small>N/A</small>
+        </li>
+        <li>
+            <div class="seat selected"></div>
+            <small>selected</small>
+        </li>
+        <li>
+            <div class="seat occupied"></div>
+            <small>occupied</small>
+        </li>
+    </ul>
+    <div class="container">
+        <div class="screen"></div>
+        <div class="rows">
+            <div class="seat selected"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat occupied"></div>
+            <div class="seat selected"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+        </div>
+        <div class="rows">
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat occupied"></div>
+            <div class="seat occupied"></div>
+            <div class="seat"></div>
+        </div>
+        <div class="rows">
+            <div class="seat occupied"></div>
+            <div class="seat"></div>
+            <div class="seat selected"></div>
+            <div class="seat"></div>
+            <div class="seat occupied"></div>
+            <div class="seat occupied"></div>
+            <div class="seat"></div>
+            <div class="seat selected"></div>
+        </div>
+        <div class="rows">
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat occupied"></div>
+            <div class="seat occupied"></div>
+        </div>
+        <div class="rows">
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat occupied"></div>
+            <div class="seat occupied"></div>
+            <div class="seat occupied"></div>
+        </div>
+        <div class="rows">
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat occupied"></div>
+            <div class="seat occupied"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+        </div>
+        <div class="rows">
+            <div class="seat selected"></div>
+            <div class="seat"></div>
+            <div class="seat occupied"></div>
+            <div class="seat"></div>
+            <div class="seat occupied"></div>
+            <div class="seat selected"></div>
+            <div class="seat occupied"></div>
+            <div class="seat"></div>
+        </div>
+    </div>
+    <p class="text">you have <span id="count">0</span> for the price of $<span id="total">0</span></p>
+    <script src="script.js"></script>
+</body>
+</html>
+<script>
+const container = document.querySelector('.container');
+const count = document.querySelector('#count');
+const total = document.querySelector('#total');
+const seats = document.querySelectorAll('.rows .seat:not(occupied)');
+const movieSelect = document.querySelector('#movie');
+
+let moviePrice = +movieSelect.value;
+localData();
+
+movieSelect.addEventListener('change',e=>{
+    moviePrice = e.target.value;
+    movieData(e.target.selectedIndex,moviePrice);
+    updateUi();
+})
+function movieData(movieIndex,moviePrice){
+    localStorage.setItem('movieIndex',movieIndex);
+    localStorage.moviePrice = moviePrice;
+}
+
+
+// dat from local storage
+function localData(){
+    const selectedSeats = JSON.parse(localStorage.getItem('selectedIndex'));
+    if(selectedSeats !== null && selectedSeats.length > 0){
+        seats.forEach((seat,index)=>{
+            if(selectedSeats.indexOf(index)>-1){
+               seat.classList.add('selected'); 
+            }
+        })
+    }
+    if(localStorage.movieIndex !== null){
+        moviePrice = localStorage.moviePrice;
+        movieSelect.selectedIndex = localStorage.movieIndex;
+
+    }
+}
+function updateUi(){
+    const selectedSeats = document.querySelectorAll('.rows .seat.selected');
+    count.innerText = selectedSeats.length;
+    total.innerText = moviePrice * selectedSeats.length;
+
+    const selectedIndex = [...selectedSeats].map(seat=>{
+        return [...seats].indexOf(seat);
+    });
+    console.log(selectedIndex);
+    localStorage.setItem('selectedIndex', JSON.stringify(selectedIndex))
+}
+container.addEventListener('click',e=>{
+    if(e.target.classList.contains('seat') && 
+        !e.target.classList.contains('occupied')){
+        e.target.classList.toggle('selected')
+
+        updateUi();
+    }
+})
+
+updateUi();
+</script>
+<style>
+import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400&display=swap');
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing: border-box;
+}
+body{
+    background:#242333;
+    color:#fff;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    font-family: 'lato',sans-serif;
+}
+.movie-container{
+    margin-bottom: 20px;
+}
+.movie-container #movie{
+    border:none;
+    border-radius:5px;
+    padding:5px 15px;
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    font-size: 14px;
+    margin-left:15px;
+}
+.showcase{
+    display:flex;
+    justify-content: space-between;
+    margin-bottom:20px;
+}
+.showcase li{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin:0 5px;
+}
+.seat{
+    width:14px;
+    height:12px;
+    border-top-left-radius:10px;
+    border-top-right-radius: 10px;
+    background:#777;
+    margin:5px;
+}
+.seat.selected{
+    background:#6fea6f;
+}
+.seat.occupied{
+    background:#fff;
+}
+.seat:not(.occupied):hover{
+    transform:scale(1.2);
+    cursor:pointer;
+}
+.showcase .seat:not(.occupied):hover{
+    transform:scale(1);
+    cursor:default;
+}
+.seat:nth-of-type(2){
+    margin-right:20px;
+}
+.seat:nth-last-of-type(2){
+    margin-left:20px;
+}
+.rows{
+    display:flex;
+}
+.container{
+    margin-bottom:20px;
+    perspective: 1000px;
+}
+.screen{
+    width:100%;
+    height:70px;
+    background:#fff;
+    transform:rotateX(-45deg);
+    box-shadow: 0 3px 10px rgba(255,255,255,0.9);
+    margin-bottom:20px;
+}
+</style>
